@@ -1,7 +1,5 @@
-# devops-capstone-project
-
-![CI Workflow](https://github.com/harshalrrathod6109-ops/devops-capstone-project/actions/workflows/workflow.yml/badge.svg)
-
+# DevOps Capstone
+[![CI Build](https://github.com/harshalrrathod6109-ops/devops-capstone-project/actions/workflows/ci-build.yaml/badge.svg)](https://github.com/harshalrrathod6109-ops/devops-capstone-project/actions/workflows/ci-build.yaml)
 This repository contains the CI/CD pipeline and DevOps automation for the Capstone Project.
 
 ## Project Description
