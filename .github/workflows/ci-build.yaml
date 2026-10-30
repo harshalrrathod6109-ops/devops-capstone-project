@@ -1,4 +1,4 @@
-name: CI Build Workflow
+name: CI Build
 
 on:
   push:
@@ -9,25 +9,39 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: python:3.9-slim
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8 nose coverage
+    - name: Lint with flake8
+      run: |
+        flake8 service --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 service --count --max-complexity=10 --max-line-length=127 --statistics
 
-      - name: Lint code
-        run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-      - name: Run unit tests
-        run: nosetests
+    - name: Run unit tests with nosetests
+      env:
+        DATABASE_URI: postgresql://postgres:password@postgres:5432/postgres
+      run: |
+        nosetests -v --with-spec --spec-color --with-coverage --cover-package=service
